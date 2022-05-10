@@ -67,7 +67,9 @@ export const Header: React.FC = () => {
           <Link to="/" className="text-decoration-none text-white">
             <h1>TOP MOVIES</h1>
           </Link>
-          <p>Sign In</p>
+          <Link className="text-decoration-none text-white" to="/login">
+            <p>Sign In</p>
+          </Link>
         </Content>
       </Container>
     </>

@@ -5,6 +5,7 @@ import MoviesByCategory from './pages/CategoriesMovies';
 import { Home } from './pages/Home';
 import Movie from './pages/Movie';
 import Movies from './pages/Movies';
+import SignIn from './pages/SignIn';
 
 export const Routes: React.FC = () => {
   return (
@@ -21,6 +22,9 @@ export const Routes: React.FC = () => {
         {/* Actors */}
         <Route path="/actors" element={<Actors />} />
         <Route path="/actors/:slug" element={<Actor />} />
+
+        {/* Sign In */}
+        <Route path="/login" element={<SignIn />} />
       </Switch>
     </BrowserRouter>
   );
