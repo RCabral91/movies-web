@@ -62,7 +62,7 @@ export const MoviesProvider: React.FC<IMoviesProviderProps> = ({
   const [pageCount, setPageCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [category, setCategory] = useState<CategoryType | null>(null);
-  const [categories, setCategories] = useState<CategoryType[]>([]);
+  const [categories] = useState<CategoryType[]>([]);
   const [isLoading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -105,7 +105,7 @@ export const MoviesProvider: React.FC<IMoviesProviderProps> = ({
   );
 
   const getMoviesByCategory = useCallback(
-    async (slug: string, page?: number, searchText?: string): Promise<void> => {
+    async (slug: string): Promise<void> => {
       setLoading(true);
       Api.get(`/categories/${slug}/movies`)
         .then(response => {

@@ -2,9 +2,11 @@ import { Link } from 'react-router-dom';
 import { FaBars } from 'react-icons/fa';
 import { useState } from 'react';
 import { Container, Content, Menu } from './styles';
+import { useAuth } from '../../hooks/AuthContext';
 
 export const Header: React.FC = () => {
   const [showMenu, setShowMenu] = useState(false);
+  const { user } = useAuth();
 
   return (
     <>
@@ -68,7 +70,7 @@ export const Header: React.FC = () => {
             <h1>TOP MOVIES</h1>
           </Link>
           <Link className="text-decoration-none text-white" to="/login">
-            <p>Sign In</p>
+            <p>{user ? 'Admin' : 'Login'}</p>
           </Link>
         </Content>
       </Container>

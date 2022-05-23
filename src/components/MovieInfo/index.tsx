@@ -1,7 +1,5 @@
-import { ActorType } from '../../@types/Actor';
 import { MovieType } from '../../@types/Movie';
 import { ImgCard } from './styles';
-import ActorsInMovie from '../ActorsInMovie';
 import ActorCard from '../ActorCard';
 
 interface IMovieInfoProps {
@@ -38,9 +36,15 @@ const MovieInfo: React.FC<IMovieInfoProps> = ({ contents }) => {
             <p className="card-text fs-4">
               <small className="fw-bold">Cast: </small>
             </p>
-            <div className="d-flex m-2">
-              {Array.isArray(contents?.actors) &&
-                contents?.actors.map(actor => <ActorCard actor={actor} />)}
+            <div className="container m-2">
+              <div className="row row-cols-1 row-cols-sm-1 row-cols-lg-3">
+                {Array.isArray(contents?.actors) &&
+                  contents?.actors.map(actor => (
+                    <div className="col d-flex">
+                      <ActorCard actor={actor} />
+                    </div>
+                  ))}
+              </div>
             </div>
           </div>
         </div>

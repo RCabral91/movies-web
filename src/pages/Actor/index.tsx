@@ -4,12 +4,10 @@ import ActorInfo from '../../components/ActorInfo';
 import Container from '../../components/Container';
 import { Footer } from '../../components/Footer';
 import { Header } from '../../components/Header';
-import MovieCard from '../../components/MovieCard';
 import PageTitle from '../../components/PageTitle';
 import Wrapper from '../../components/Wrapper';
 import { useActors } from '../../hooks/ActorsContext';
 import { setTitle } from '../../utils/title';
-import { Cover } from './styles';
 
 const Actor: React.FC = () => {
   const { actor, getActor } = useActors();

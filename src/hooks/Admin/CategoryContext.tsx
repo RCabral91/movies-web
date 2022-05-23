@@ -6,14 +6,11 @@ import {
   useMemo,
   ReactNode,
 } from 'react';
-import { ActorType } from '../../@types/Actor';
 import { CategoryType } from '../../@types/Category';
 import { Api } from '../../services/Api';
 
 // Aqui é definida a Interface com os tipos de dados de tudo que será disponibilizado "para fora" do Provider
-interface IActorsContextProps {
-  actor: ActorType | null;
-  actors: ActorType[];
+interface ICategoriesContextProps {
   category: CategoryType | null;
   categories: CategoryType[];
   isLoading: boolean;
@@ -21,78 +18,74 @@ interface IActorsContextProps {
   pageCount: number;
   errorMessage: string | null;
   setCategory: (slug: CategoryType) => void;
-  getActor: (slug: string) => Promise<void>;
-  getActors: (page?: number, searchText?: string) => Promise<void>;
-  // getMoviesByCategory: (slug: string) => Promise<void>;
+  setCategories: (slug: CategoryType[]) => void;
+  getCategories: (
+    order_by?: string,
+    order?: string,
+    page?: number
+  ) => Promise<void>;
 }
 
-interface IActorsProviderProps {
+interface ICategoriesProviderProps {
   children: ReactNode;
 }
 
 // Aqui é definido o Context (não precisa entender, é sempre exatamente assim)
-export const ActorsContext = createContext<IActorsContextProps>(
-  {} as IActorsContextProps
+export const CategoriesContext = createContext<ICategoriesContextProps>(
+  {} as ICategoriesContextProps
 );
 
 // O useBanners() é o que você vai chamar dentro dos componentes pra acessar o conteúdo interno do Provider. Exemplo:
 /*
   const { banners, getBanners } = useBanners();
 */
-export const useActors = (): IActorsContextProps => {
-  const context = useContext(ActorsContext);
+export const useCategories = (): ICategoriesContextProps => {
+  const context = useContext(CategoriesContext);
 
   if (!context) {
-    throw new Error('useActors must be within ActorsProvider');
+    throw new Error('useCategories must be within CategoriesProvider');
   }
 
   return context;
 };
 
 // Aqui são definidas as variáveis de State e as funções do Provider
-export const ActorsProvider: React.FC<IActorsProviderProps> = ({
+export const CategoriesProvider: React.FC<ICategoriesProviderProps> = ({
   children,
 }) => {
-  const [actor, setActor] = useState<ActorType | null>(null);
-  const [actors, setActors] = useState<ActorType[]>([]);
-  const [pageCount, setPageCount] = useState(0);
-  const [currentPage, setCurrentPage] = useState(0);
   const [category, setCategory] = useState<CategoryType | null>(null);
   const [categories, setCategories] = useState<CategoryType[]>([]);
+  const [pageCount, setPageCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
   const [isLoading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const getActor = useCallback(async (slug: string): Promise<void> => {
-    setLoading(true);
-    Api.get(`/actors/${slug}`)
-      .then(response => setActor(response.data))
-      .catch(() => setActor(null))
-      .finally(() => setLoading(false));
-  }, []);
-
-  const getActors = useCallback(
-    async (page = 1, searchText = ''): Promise<void> => {
-      const params: { per_page: number; search?: string; page?: number } = {
+  const getCategories = useCallback(
+    // eslint-disable-next-line camelcase
+    async (order_by?: string, order?: string, page = 1): Promise<void> => {
+      const params: {
+        per_page: number;
+        page?: number;
+        order_by?: string;
+        order?: string;
+      } = {
         per_page: 6,
         page,
+        // eslint-disable-next-line camelcase
+        order_by,
+        order,
       };
-
-      setLoading(true);
-      setCurrentPage(page);
-
-      setLoading(true);
-      setErrorMessage(null);
-
       try {
-        if (searchText) {
-          params.search = searchText;
-        }
-        const response = await Api.get('/actors', { params });
+        setLoading(true);
+        setCurrentPage(page);
+        setErrorMessage(null);
 
-        setActors(response?.data?.data);
+        const response = await Api.post(`/categories`, { params });
+        setCategories(response?.data);
         setPageCount(response?.data?.meta?.last_page);
       } catch (e) {
-        if (e instanceof Error) setErrorMessage(e.message);
+        setCategories([]);
+        setCategory(null);
       } finally {
         setLoading(false);
       }
@@ -100,30 +93,31 @@ export const ActorsProvider: React.FC<IActorsProviderProps> = ({
     []
   );
 
-  // const getMoviesByCategory = useCallback(
-  //   async (slug: string): Promise<void> => {
+  //     const params: { per_page: number; page?: number } = {
+  //       per_page: 5,
+  //       page,
+  //     };
+
+  //     setCurrentPage(page);
   //     setLoading(true);
-  //     Api.get(`/movies/categories/${slug}`)
-  //       .then(response => {
-  //         setMovies(response.data.collection);
-  //         const categoryToFind = categories.find(c => c.slug === slug);
-  //         setCategory(categoryToFind ?? null);
-  //         setAlreadyGot(false);
-  //       })
-  //       .catch(() => {
-  //         setMovies([]);
-  //         setCategory(null);
-  //       })
-  //       .finally(() => setLoading(false));
+  //     setErrorMessage(null);
+
+  //       const response = await Api.get('/categories', { params });
+
+  //       setCategories(response?.data?.data);
+  //       setPageCount(response?.data?.meta?.last_page);
+  //     } catch (e) {
+  //       if (e instanceof Error) setErrorMessage(e.message);
+  //     } finally {
+  //       setLoading(false);
+  //     }
   //   },
-  //   [categories]
+  //   []
   // );
 
   // Aqui são definidas quais informações estarão disponíveis "para fora" do Provider
   const providerValue = useMemo(
     () => ({
-      actor,
-      actors,
       category,
       categories,
       isLoading,
@@ -131,13 +125,10 @@ export const ActorsProvider: React.FC<IActorsProviderProps> = ({
       currentPage,
       pageCount,
       setCategory,
-      getActor,
-      getActors,
-      // getActorsByCategory,
+      setCategories,
+      getCategories,
     }),
     [
-      actor,
-      actors,
       category,
       categories,
       isLoading,
@@ -145,15 +136,14 @@ export const ActorsProvider: React.FC<IActorsProviderProps> = ({
       currentPage,
       pageCount,
       setCategory,
-      getActor,
-      getActors,
-      // getActorsByCategory,
+      setCategories,
+      getCategories,
     ]
   );
 
   return (
-    <ActorsContext.Provider value={providerValue}>
+    <CategoriesContext.Provider value={providerValue}>
       {children}
-    </ActorsContext.Provider>
+    </CategoriesContext.Provider>
   );
 };

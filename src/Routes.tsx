@@ -6,6 +6,7 @@ import { Home } from './pages/Home';
 import Movie from './pages/Movie';
 import Movies from './pages/Movies';
 import SignIn from './pages/SignIn';
+import TableOfCategories from './pages/TableOfCategories';
 
 export const Routes: React.FC = () => {
   return (
@@ -25,6 +26,9 @@ export const Routes: React.FC = () => {
 
         {/* Sign In */}
         <Route path="/login" element={<SignIn />} />
+
+        {/* Tables */}
+        <Route path="/admin/categories" element={<TableOfCategories />} />
       </Switch>
     </BrowserRouter>
   );

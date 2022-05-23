@@ -58,7 +58,7 @@ export const ActorsProvider: React.FC<IActorsProviderProps> = ({
   const [pageCount, setPageCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [category, setCategory] = useState<CategoryType | null>(null);
-  const [categories, setCategories] = useState<CategoryType[]>([]);
+  const [categories] = useState<CategoryType[]>([]);
   const [isLoading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 

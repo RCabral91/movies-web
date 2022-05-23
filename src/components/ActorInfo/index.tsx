@@ -1,6 +1,6 @@
 import { ActorType } from '../../@types/Actor';
 import MovieCard from '../MovieCard';
-import { Cover, ImgCard } from './styles';
+import { ImgCard } from './styles';
 
 interface IActorInfoProps {
   contents?: ActorType;
@@ -28,14 +28,21 @@ const ActorInfo: React.FC<IActorInfoProps> = ({ contents }) => {
               <small className="fw-bold">Biography: </small>
               {contents?.biography}
             </p>
+
+            <p className="fs-4">
+              <small className="fw-bold">Movies:</small>
+            </p>
+            <div className="container mt-3">
+              <div className="row row-cols-1 row-cols-md-1 row-cols-lg-3">
+                {Array.isArray(contents?.movies) &&
+                  contents?.movies.map(movie => (
+                    <div className="col">
+                      <MovieCard movie={movie} />
+                    </div>
+                  ))}
+              </div>
+            </div>
           </div>
-          <p className="fs-4">
-            <small className="fw-bold">Movies:</small>
-          </p>
-          <Cover className="d-flex m-3">
-            {Array.isArray(contents?.movies) &&
-              contents?.movies.map(movie => <MovieCard movie={movie} />)}
-          </Cover>
         </div>
       </div>
     </div>

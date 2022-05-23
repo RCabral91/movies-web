@@ -10,6 +10,7 @@ import MovieCard from '../../components/MovieCard';
 import Pagination from '../../components/Pagination';
 import LoadingCards from '../../components/LoadingCards';
 import LoadingGate from '../../components/LoadingGate';
+import Wrapper from '../../components/Wrapper';
 
 const Movies: React.FC = () => {
   const { movies, currentPage, pageCount, isLoading, getMovies } = useMovies();
@@ -29,7 +30,7 @@ const Movies: React.FC = () => {
     getMovies(event.selected + 1);
 
   return (
-    <>
+    <Wrapper>
       <Header />
       <LoadingGate
         waitFor={isLoading === false}
@@ -79,7 +80,7 @@ const Movies: React.FC = () => {
         )}
       </Container>
       <Footer />
-    </>
+    </Wrapper>
   );
 };
 
