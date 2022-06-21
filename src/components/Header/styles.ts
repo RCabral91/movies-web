@@ -27,6 +27,12 @@ export const Menu = styled.nav`
     text-decoration: none;
     font-size: 20px;
     color: white;
+
+    transition: filter 0.2s;
+
+    &:hover {
+      filter: brightness(0.7);
+    }
   }
 
   button {
@@ -63,7 +69,9 @@ export const Content = styled.div`
   align-items: center;
   justify-content: space-between;
 
-  button {
+  button,
+  a,
+  p {
     font-size: 16px;
     color: white;
     background-color: transparent;
@@ -74,7 +82,7 @@ export const Content = styled.div`
     transition: filter 0.2s;
 
     &:hover {
-      filter: brightness(0.9);
+      filter: brightness(0.7);
     }
   }
 `;

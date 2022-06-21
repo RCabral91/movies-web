@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { useCategories } from '../../hooks/Admin/CategoryContext';
 import { useAuth } from '../../hooks/AuthContext';
 import Container from '../../components/Container';
 import { Footer } from '../../components/Footer';
@@ -10,20 +9,26 @@ import PageTitle from '../../components/PageTitle';
 import Pagination from '../../components/Pagination';
 import { setTitle } from '../../utils/title';
 import AdminNav from '../../components/AdminNav';
+import { useActors } from '../../hooks/ActorsContext';
+import { SearchInput } from '../../components/SearchInput';
 
-const TableOfCategories: React.FC = () => {
-  const { categories, getCategories, deleteCategory, pageCount, currentPage } =
-    useCategories();
+const TableOfActors: React.FC = () => {
+  const { actors, getActors, deleteActor, pageCount, currentPage } =
+    useActors();
   const { user, isLoading } = useAuth();
 
   useEffect(() => {
-    getCategories();
-    setTitle('Categories');
+    getActors();
+    setTitle('Actors');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleSearch = (searchText: string): void => {
+    getActors(1, searchText);
+  };
+
   const handlePageChange = (event: { selected: number }): Promise<void> =>
-    getCategories(event.selected + 1);
+    getActors(event.selected + 1);
 
   if (isLoading) {
     return <h1>Loading...</h1>;
@@ -39,10 +44,20 @@ const TableOfCategories: React.FC = () => {
         <AdminNav />
         <div className="d-flex align-items-center text-white mb-4 justify-content-between">
           <PageTitle
-            title={'Categories' ?? 'Carregando...'}
+            title={'Actors' ?? 'Carregando...'}
             subtitle="Admin"
             url="/admin"
           />
+        </div>
+        <div className="row">
+          <div className="col" />
+          <div className="col" />
+          <div className="col d-flex justify-content-end">
+            <SearchInput
+              onSearch={handleSearch}
+              placeholder="Search your favorite movie..."
+            />
+          </div>
         </div>
         <table className="table text-white">
           <thead>
@@ -51,8 +66,8 @@ const TableOfCategories: React.FC = () => {
                 #
               </th>
               <th scope="col">
-                Categories
-                <Link to="/categories" className="btn btn-primary btn-sm ms-3">
+                Actors
+                <Link to="/actors/add" className="btn btn-primary btn-sm ms-3">
                   Add
                 </Link>
               </th>
@@ -62,15 +77,15 @@ const TableOfCategories: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {Array.isArray(categories) &&
-              categories.map(category => {
+            {Array.isArray(actors) &&
+              actors.map(actor => {
                 return (
-                  <tr key={category.id}>
-                    <th scope="row">{category.id}</th>
-                    <td>{category.name}</td>
+                  <tr key={actor.id}>
+                    <th scope="row">{actor.id}</th>
+                    <td>{actor.name}</td>
                     <td className="text-end d-flex">
                       <Link
-                        to={`/admin/categories/${category.slug}/edit`}
+                        to={`/admin/actors/${actor.slug}/edit`}
                         type="button"
                         className="btn btn-primary btn-sm me-1 my-1"
                       >
@@ -80,7 +95,7 @@ const TableOfCategories: React.FC = () => {
                       <button
                         type="button"
                         className="btn btn-primary btn-sm ms-1 my-1"
-                        onClick={() => deleteCategory(category.name)}
+                        onClick={() => deleteActor(actor.name)}
                       >
                         Remove
                       </button>
@@ -92,7 +107,7 @@ const TableOfCategories: React.FC = () => {
         </table>
         {pageCount > 1 && (
           <Pagination
-            className="m-3"
+            className="m-5"
             forcePage={currentPage - 1}
             pageCount={pageCount}
             onPageChange={handlePageChange}
@@ -104,4 +119,4 @@ const TableOfCategories: React.FC = () => {
   );
 };
 
-export default TableOfCategories;
+export default TableOfActors;

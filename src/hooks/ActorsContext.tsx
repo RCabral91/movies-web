@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+import { AxiosError } from 'axios';
 import {
   createContext,
   useCallback,
@@ -22,8 +24,28 @@ interface IActorsContextProps {
   errorMessage: string | null;
   setCategory: (slug: CategoryType) => void;
   getActor: (slug: string) => Promise<void>;
-  getActors: (page?: number, searchText?: string) => Promise<void>;
-  // getMoviesByCategory: (slug: string) => Promise<void>;
+  getActors: (
+    page?: number,
+    searchText?: string,
+    orderBy?: string,
+    order?: string
+  ) => Promise<void>;
+  addingActor: (
+    name: string,
+    picture: string,
+    birth_date: string,
+    birth_place: string,
+    biography: string
+  ) => Promise<boolean>;
+  editActor: (
+    slug: string,
+    name: string,
+    picture: string,
+    birth_date: string,
+    birth_place: string,
+    biography: string
+  ) => Promise<boolean>;
+  deleteActor: (slug: string) => Promise<boolean>;
 }
 
 interface IActorsProviderProps {
@@ -63,24 +85,42 @@ export const ActorsProvider: React.FC<IActorsProviderProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const getActor = useCallback(async (slug: string): Promise<void> => {
-    setLoading(true);
-    Api.get(`/actors/${slug}`)
-      .then(response => setActor(response.data))
-      .catch(() => setActor(null))
-      .finally(() => setLoading(false));
+    setErrorMessage(null);
+    try {
+      setLoading(true);
+      const response = await Api.get(`/actors/${slug}`);
+      setActor(response?.data);
+      setLoading(false);
+    } catch (e) {
+      setActor(null);
+      setErrorMessage('Error');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   const getActors = useCallback(
-    async (page = 1, searchText = ''): Promise<void> => {
-      const params: { per_page: number; search?: string; page?: number } = {
+    async (
+      page = 1,
+      searchText = '',
+      orderBy = 'name',
+      order = 'desc'
+    ): Promise<void> => {
+      const params: {
+        per_page: number;
+        search?: string;
+        page?: number;
+        orderBy?: string;
+        order?: string;
+      } = {
         per_page: 6,
         page,
+        orderBy,
+        order,
       };
 
       setLoading(true);
       setCurrentPage(page);
-
-      setLoading(true);
       setErrorMessage(null);
 
       try {
@@ -100,24 +140,85 @@ export const ActorsProvider: React.FC<IActorsProviderProps> = ({
     []
   );
 
-  // const getMoviesByCategory = useCallback(
-  //   async (slug: string): Promise<void> => {
-  //     setLoading(true);
-  //     Api.get(`/movies/categories/${slug}`)
-  //       .then(response => {
-  //         setMovies(response.data.collection);
-  //         const categoryToFind = categories.find(c => c.slug === slug);
-  //         setCategory(categoryToFind ?? null);
-  //         setAlreadyGot(false);
-  //       })
-  //       .catch(() => {
-  //         setMovies([]);
-  //         setCategory(null);
-  //       })
-  //       .finally(() => setLoading(false));
-  //   },
-  //   [categories]
-  // );
+  const addingActor = useCallback(
+    async (
+      name: string,
+      picture: string,
+      birth_date: string,
+      birth_place: string,
+      biography: string
+    ): Promise<boolean> => {
+      setErrorMessage(null);
+      try {
+        setLoading(true);
+        await Api.post('/actors', {
+          name,
+          picture,
+          birth_date,
+          birth_place,
+          biography,
+        });
+        setLoading(false);
+        return true;
+      } catch (e: unknown) {
+        const error = e as AxiosError;
+        setLoading(false);
+        setErrorMessage(error?.response?.data?.message);
+        return false;
+      }
+    },
+    []
+  );
+
+  const editActor = useCallback(
+    async (
+      slug: string,
+      name: string,
+      picture: string,
+      birth_date: string,
+      birth_place: string,
+      biography: string
+    ): Promise<boolean> => {
+      setErrorMessage(null);
+      try {
+        setLoading(true);
+        await Api.patch(`/actors/${slug}`, {
+          name,
+          picture,
+          birth_date,
+          birth_place,
+          biography,
+        });
+        setLoading(false);
+        return true;
+      } catch (e: unknown) {
+        const error = e as AxiosError;
+        setLoading(false);
+        setErrorMessage(error?.response?.data?.message);
+        return false;
+      }
+    },
+    []
+  );
+
+  const deleteActor = useCallback(
+    async (slug: string): Promise<boolean> => {
+      setErrorMessage(null);
+      try {
+        setLoading(true);
+        await Api.delete(`/actors/${slug}`);
+        await getActors();
+        setLoading(false);
+        return true;
+      } catch (e: unknown) {
+        const error = e as AxiosError;
+        setLoading(false);
+        setErrorMessage(error?.response?.data?.message);
+        return false;
+      }
+    },
+    [getActors]
+  );
 
   // Aqui são definidas quais informações estarão disponíveis "para fora" do Provider
   const providerValue = useMemo(
@@ -133,7 +234,9 @@ export const ActorsProvider: React.FC<IActorsProviderProps> = ({
       setCategory,
       getActor,
       getActors,
-      // getActorsByCategory,
+      addingActor,
+      editActor,
+      deleteActor,
     }),
     [
       actor,
@@ -147,7 +250,9 @@ export const ActorsProvider: React.FC<IActorsProviderProps> = ({
       setCategory,
       getActor,
       getActors,
-      // getActorsByCategory,
+      addingActor,
+      editActor,
+      deleteActor,
     ]
   );
 

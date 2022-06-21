@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { MdSearch } from 'react-icons/md';
 import { SearchStyle } from './styles';
 
@@ -12,11 +12,21 @@ export const SearchInput: React.FC<ISearchInputProps> = ({
   onSearch,
 }) => {
   const [searchText, setSearchText] = useState('');
+  const handleKeyPress = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.code === 'Enter') {
+        onSearch(searchText);
+      }
+    },
+    [onSearch, searchText]
+  );
+
   return (
     <SearchStyle>
-      <form className="input-display">
+      <div className="input-display">
         <div className="d-flex flex-grow-1">
           <input
+            onKeyDown={handleKeyPress}
             onChange={e => setSearchText(e.target.value)}
             value={searchText}
             placeholder={placeholder}
@@ -31,7 +41,7 @@ export const SearchInput: React.FC<ISearchInputProps> = ({
             <MdSearch />
           </button>
         </div>
-      </form>
+      </div>
     </SearchStyle>
   );
 };

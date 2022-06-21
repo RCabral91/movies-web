@@ -4,11 +4,15 @@ export const ImgCard = styled.div`
   background-size: cover;
   background-position: center center;
   width: 100%;
-  height: 770px;
-  display: flex;
+  height: 0;
+  padding-top: 140%;
+  position: relative;
 
   a {
-    display: block;
-    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
   }
 `;

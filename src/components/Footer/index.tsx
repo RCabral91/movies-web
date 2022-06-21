@@ -6,7 +6,7 @@ export const Footer: React.FC = () => {
     <FooterStyles>
       <div className="container text-white py-5 py-md-3">
         <div className="row">
-          <div className="d-flex col-xl-6 mb-4 mb-xl-0">
+          <div className="col-xl-6 mb-4 mb-xl-0 d-flex justify-content-between">
             <div className="d-flex align-items-center justify-content-center justify-content-xl-start mb-2">
               <a
                 href="https://www.facebook.com/"
@@ -38,8 +38,7 @@ export const Footer: React.FC = () => {
               </a>
             </div>
           </div>
-
-          <p className="mb-1 flex-shrink">
+          <p className="mb-1">
             <a href="/" title="Top Movies" rel="noreferrer">
               Top Movies
             </a>

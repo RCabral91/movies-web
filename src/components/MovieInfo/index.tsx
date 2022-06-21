@@ -30,8 +30,8 @@ const MovieInfo: React.FC<IMovieInfoProps> = ({ contents }) => {
               <small className="fw-bold">Director: </small> {contents?.director}
             </p>
             <p className="card-text mb-5 fs-4">
-              <small className="fw-bold">Duration: </small> {contents?.duration}
-              m
+              <small className="fw-bold">Duration: </small>{' '}
+              {contents?.duration}m
             </p>
             <p className="card-text fs-4">
               <small className="fw-bold">Cast: </small>

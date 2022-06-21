@@ -22,7 +22,7 @@ export const Header: React.FC = () => {
           </div>
           <div>
             <h4 className="text-center">Movies</h4>
-            <ul className="">
+            <ul>
               <li>
                 <Link to="/categories/action/movies">Action</Link>
               </li>
@@ -57,8 +57,22 @@ export const Header: React.FC = () => {
           </div>
         </div>
         <Link to="/actors">
-          <h4 className="text-center">Know your favorites actors</h4>
+          <h4 className="text-center mb-4">Know your favorites actors</h4>
         </Link>
+        <div className="border-top">
+          <h4 className="text-center mt-4">Admin Page</h4>
+          <ul className="mt-4">
+            <li>
+              <Link to="/admin/actors">Actors</Link>
+            </li>
+            <li>
+              <Link to="/admin/categories">Categories</Link>
+            </li>
+            <li>
+              <Link to="/admin/movies">Movies</Link>
+            </li>
+          </ul>
+        </div>
       </Menu>
 
       <Container>
@@ -69,8 +83,8 @@ export const Header: React.FC = () => {
           <Link to="/" className="text-decoration-none text-white">
             <h1>TOP MOVIES</h1>
           </Link>
-          <Link className="text-decoration-none text-white" to="/login">
-            <p>{user ? 'Admin' : 'Login'}</p>
+          <Link className="text-decoration-none text-white pt-2" to="/login">
+            <p className="m-0">{user ? `Olá, ${user.name}` : 'Login'}</p>
           </Link>
         </Content>
       </Container>

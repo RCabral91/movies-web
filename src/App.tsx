@@ -1,4 +1,5 @@
 import { ActorsProvider } from './hooks/ActorsContext';
+import { CategoriesProvider } from './hooks/Admin/CategoryContext';
 import { AuthProvider } from './hooks/AuthContext';
 import { MoviesProvider } from './hooks/MoviesContext';
 import { Routes } from './Routes';
@@ -10,7 +11,9 @@ const App: React.FC = () => {
       <MoviesProvider>
         <ActorsProvider>
           <AuthProvider>
-            <Routes />
+            <CategoriesProvider>
+              <Routes />
+            </CategoriesProvider>
           </AuthProvider>
         </ActorsProvider>
       </MoviesProvider>

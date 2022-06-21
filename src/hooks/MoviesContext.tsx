@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import {
   createContext,
   useCallback,
@@ -22,12 +23,39 @@ interface IMoviesContextProps {
   errorMessage: string | null;
   setCategory: (slug: CategoryType) => void;
   getMovie: (slug: string) => Promise<void>;
-  getMovies: (page?: number, searchText?: string) => Promise<void>;
+  getMovies: (
+    page?: number,
+    searchText?: string,
+    orderBy?: string,
+    order?: string
+  ) => Promise<void>;
   getMoviesByCategory: (
     slug: string,
     page?: number,
     searchText?: string
   ) => Promise<void>;
+  addingMovie: (
+    title: string,
+    director?: string | undefined,
+    year?: number | undefined,
+    duration?: number | undefined,
+    score?: number | undefined,
+    cover?: string | undefined,
+    trailer?: string | undefined,
+    description?: string | undefined
+  ) => Promise<boolean>;
+  editMovie: (
+    title: string,
+    slug?: string | undefined,
+    director?: string | undefined,
+    year?: number | undefined,
+    duration?: number | undefined,
+    score?: number | undefined,
+    cover?: string | undefined,
+    trailer?: string | undefined,
+    description?: string | undefined
+  ) => Promise<boolean>;
+  deleteMovie: (slug: string) => Promise<boolean>;
 }
 
 interface IMoviesProviderProps {
@@ -67,24 +95,42 @@ export const MoviesProvider: React.FC<IMoviesProviderProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const getMovie = useCallback(async (slug: string): Promise<void> => {
-    setLoading(true);
-    Api.get(`/movies/${slug}`)
-      .then(response => setMovie(response.data))
-      .catch(() => setMovie(null))
-      .finally(() => setLoading(false));
+    setErrorMessage(null);
+    try {
+      setLoading(true);
+      const response = await Api.get(`/movies/${slug}`);
+      setMovie(response?.data);
+      setLoading(false);
+    } catch (e) {
+      setMovie(null);
+      setErrorMessage('Error');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   const getMovies = useCallback(
-    async (page = 1, searchText = ''): Promise<void> => {
-      const params: { per_page: number; search?: string; page?: number } = {
+    async (
+      page = 1,
+      searchText = '',
+      orderBy = 'title',
+      order = 'desc'
+    ): Promise<void> => {
+      const params: {
+        per_page: number;
+        search?: string;
+        page?: number;
+        orderBy?: string;
+        order?: string;
+      } = {
         per_page: 6,
         page,
+        orderBy,
+        order,
       };
 
       setLoading(true);
       setCurrentPage(page);
-
-      setLoading(true);
       setErrorMessage(null);
 
       try {
@@ -108,16 +154,108 @@ export const MoviesProvider: React.FC<IMoviesProviderProps> = ({
     async (slug: string): Promise<void> => {
       setLoading(true);
       Api.get(`/categories/${slug}/movies`)
-        .then(response => {
-          setMovies(response?.data?.data);
-        })
-        .catch(() => {
-          setMovies([]);
-          setCategory(null);
-        })
+        .then(response => setMovies(response?.data?.data))
+        .catch(() => setMovies([]))
+        .finally(() => setLoading(false));
+
+      Api.get(`/categories/${slug}`)
+        .then(response => setCategory(response?.data))
+        .catch(() => setCategory(null))
         .finally(() => setLoading(false));
     },
     []
+  );
+
+  const addingMovie = useCallback(
+    async (
+      title: string,
+      director?: string | undefined,
+      year?: number | undefined,
+      duration?: number | undefined,
+      score?: number | undefined,
+      cover?: string | undefined,
+      trailer?: string | undefined,
+      description?: string | undefined
+    ): Promise<boolean> => {
+      setErrorMessage(null);
+      try {
+        setLoading(true);
+        await Api.post('/movies', {
+          title,
+          director,
+          year,
+          duration,
+          score,
+          cover,
+          trailer,
+          description,
+        });
+        setLoading(false);
+        return true;
+      } catch (e: unknown) {
+        const error = e as AxiosError;
+        setLoading(false);
+        setErrorMessage(error?.response?.data?.message);
+        return false;
+      }
+    },
+    []
+  );
+
+  const editMovie = useCallback(
+    async (
+      title: string,
+      slug?: string | undefined,
+      director?: string | undefined,
+      year?: number | undefined,
+      duration?: number | undefined,
+      score?: number | undefined,
+      cover?: string | undefined,
+      trailer?: string | undefined,
+      description?: string | undefined
+    ): Promise<boolean> => {
+      setErrorMessage(null);
+      try {
+        setLoading(true);
+        await Api.patch(`/movies/${slug}`, {
+          title,
+          director,
+          year,
+          duration,
+          score,
+          cover,
+          trailer,
+          description,
+        });
+        setLoading(false);
+        return true;
+      } catch (e: unknown) {
+        const error = e as AxiosError;
+        setLoading(false);
+        setErrorMessage(error?.response?.data?.message);
+        return false;
+      }
+    },
+    []
+  );
+
+  const deleteMovie = useCallback(
+    async (slug: string): Promise<boolean> => {
+      setErrorMessage(null);
+      try {
+        setLoading(true);
+        await Api.delete(`/movies/${slug}`);
+        await getMovies();
+        setLoading(false);
+        return true;
+      } catch (e: unknown) {
+        const error = e as AxiosError;
+        setLoading(false);
+        setErrorMessage(error?.response?.data?.message);
+        return false;
+      }
+    },
+    [getMovies]
   );
 
   // Aqui são definidas quais informações estarão disponíveis "para fora" do Provider
@@ -135,6 +273,9 @@ export const MoviesProvider: React.FC<IMoviesProviderProps> = ({
       getMovie,
       getMovies,
       getMoviesByCategory,
+      addingMovie,
+      editMovie,
+      deleteMovie,
     }),
     [
       movie,
@@ -149,6 +290,9 @@ export const MoviesProvider: React.FC<IMoviesProviderProps> = ({
       getMovie,
       getMovies,
       getMoviesByCategory,
+      addingMovie,
+      editMovie,
+      deleteMovie,
     ]
   );
 

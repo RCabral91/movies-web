@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import {
   createContext,
   useCallback,
@@ -19,11 +20,15 @@ interface ICategoriesContextProps {
   errorMessage: string | null;
   setCategory: (slug: CategoryType) => void;
   setCategories: (slug: CategoryType[]) => void;
+  getCategory: (slug: string) => Promise<void>;
   getCategories: (
-    order_by?: string,
-    order?: string,
-    page?: number
+    page?: number,
+    orderBy?: string,
+    order?: string
   ) => Promise<void>;
+  createCategory: (name: string) => Promise<boolean>;
+  editCategory: (slug: string, name: string) => Promise<boolean>;
+  deleteCategory: (slug: string) => Promise<boolean>;
 }
 
 interface ICategoriesProviderProps {
@@ -60,19 +65,32 @@ export const CategoriesProvider: React.FC<ICategoriesProviderProps> = ({
   const [isLoading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const getCategory = useCallback(async (slug: string): Promise<void> => {
+    setErrorMessage(null);
+    try {
+      setLoading(true);
+      const response = await Api.get(`/categories/${slug}`);
+      setCategory(response?.data);
+      setLoading(false);
+    } catch (e) {
+      setCategory(null);
+      setErrorMessage('Error');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const getCategories = useCallback(
-    // eslint-disable-next-line camelcase
-    async (order_by?: string, order?: string, page = 1): Promise<void> => {
+    async (page = 1, orderBy = 'id', order = 'desc'): Promise<void> => {
       const params: {
-        per_page: number;
         page?: number;
-        order_by?: string;
+        per_page: number;
+        orderBy?: string;
         order?: string;
       } = {
         per_page: 6,
         page,
-        // eslint-disable-next-line camelcase
-        order_by,
+        orderBy,
         order,
       };
       try {
@@ -80,8 +98,8 @@ export const CategoriesProvider: React.FC<ICategoriesProviderProps> = ({
         setCurrentPage(page);
         setErrorMessage(null);
 
-        const response = await Api.post(`/categories`, { params });
-        setCategories(response?.data);
+        const response = await Api.get(`/categories`, { params });
+        setCategories(response?.data?.data);
         setPageCount(response?.data?.meta?.last_page);
       } catch (e) {
         setCategories([]);
@@ -93,27 +111,59 @@ export const CategoriesProvider: React.FC<ICategoriesProviderProps> = ({
     []
   );
 
-  //     const params: { per_page: number; page?: number } = {
-  //       per_page: 5,
-  //       page,
-  //     };
+  const createCategory = useCallback(async (name: string): Promise<boolean> => {
+    setErrorMessage(null);
+    try {
+      setLoading(true);
+      await Api.post('/categories', {
+        name,
+      });
+      setLoading(false);
+      return true;
+    } catch (e: unknown) {
+      const error = e as AxiosError;
+      setLoading(false);
+      setErrorMessage(error?.response?.data?.message);
+      return false;
+    }
+  }, []);
 
-  //     setCurrentPage(page);
-  //     setLoading(true);
-  //     setErrorMessage(null);
+  const editCategory = useCallback(
+    async (slug: string, name: string): Promise<boolean> => {
+      setErrorMessage(null);
+      try {
+        setLoading(true);
+        await Api.patch(`/categories/${slug}`, { name });
+        setLoading(false);
+        return true;
+      } catch (e: unknown) {
+        const error = e as AxiosError;
+        setLoading(false);
+        setErrorMessage(error?.response?.data?.message);
+        return false;
+      }
+    },
+    []
+  );
 
-  //       const response = await Api.get('/categories', { params });
-
-  //       setCategories(response?.data?.data);
-  //       setPageCount(response?.data?.meta?.last_page);
-  //     } catch (e) {
-  //       if (e instanceof Error) setErrorMessage(e.message);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   },
-  //   []
-  // );
+  const deleteCategory = useCallback(
+    async (slug: string): Promise<boolean> => {
+      setErrorMessage(null);
+      try {
+        setLoading(true);
+        await Api.delete(`/categories/${slug}`);
+        await getCategories();
+        setLoading(false);
+        return true;
+      } catch (e: unknown) {
+        const error = e as AxiosError;
+        setLoading(false);
+        setErrorMessage(error?.response?.data?.message);
+        return false;
+      }
+    },
+    [getCategories]
+  );
 
   // Aqui são definidas quais informações estarão disponíveis "para fora" do Provider
   const providerValue = useMemo(
@@ -126,7 +176,11 @@ export const CategoriesProvider: React.FC<ICategoriesProviderProps> = ({
       pageCount,
       setCategory,
       setCategories,
+      getCategory,
       getCategories,
+      createCategory,
+      editCategory,
+      deleteCategory,
     }),
     [
       category,
@@ -137,7 +191,11 @@ export const CategoriesProvider: React.FC<ICategoriesProviderProps> = ({
       pageCount,
       setCategory,
       setCategories,
+      getCategory,
       getCategories,
+      createCategory,
+      editCategory,
+      deleteCategory,
     ]
   );
 

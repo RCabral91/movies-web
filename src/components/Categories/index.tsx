@@ -1,5 +1,4 @@
 import { CategoryType } from '../../@types/Category';
-import { useMovies } from '../../hooks/MoviesContext';
 import { CategoryOverflow, PillStyles } from './styles';
 
 interface ICategoriesProps {
@@ -12,25 +11,20 @@ export const Categories: React.FC<ICategoriesProps> = ({
   categories,
   color = 'primary',
   size = 'md',
-}) => {
-  const { setCategory } = useMovies();
-
-  return (
-    <CategoryOverflow className="mb-4">
-      <ul className="d-flex flex-nowrap flex-md-wrap m-0 list-unstyled">
-        {categories?.map(category => (
-          <li key={category.slug}>
-            <PillStyles
-              onClick={() => setCategory(category)}
-              className={`btn btn-${color} btn-${size} me-2 mb-2`}
-              title={category.name}
-              to={`/categories/${category.slug}/movies`}
-            >
-              {category.name}
-            </PillStyles>
-          </li>
-        ))}
-      </ul>
-    </CategoryOverflow>
-  );
-};
+}) => (
+  <CategoryOverflow className="mb-4">
+    <ul className="d-flex flex-nowrap flex-md-wrap m-0 list-unstyled">
+      {categories?.map(category => (
+        <li key={category.slug}>
+          <PillStyles
+            className={`btn btn-${color} btn-${size} me-2 mb-2`}
+            title={category.name}
+            to={`/categories/${category.slug}/movies`}
+          >
+            {category.name}
+          </PillStyles>
+        </li>
+      ))}
+    </ul>
+  </CategoryOverflow>
+);

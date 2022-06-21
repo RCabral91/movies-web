@@ -4,7 +4,7 @@ import { CategoryType } from './Category';
 
 /* eslint-disable camelcase */
 export type MovieType = {
-  id?: number;
+  id: number;
   slug: string;
   title: string;
   description?: string;
